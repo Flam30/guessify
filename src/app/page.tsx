@@ -1,4 +1,5 @@
 import InputBar from "../components/ui/inputBar";
+import AuthButton from "../components/AuthButton";
 
 export default function Home() {
   return (
@@ -7,15 +8,14 @@ export default function Home() {
         <h1 className="text-4xl font-bold leading-[1.1] tracking-tighter sm:text-5xl">
           Guessify
         </h1>
+        <AuthButton />
         <div className="w-[680px]">
           <InputBar />
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center"></footer>
+      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
+        <div className="flex gap-4 items-center flex-col sm:flex-row"></div>
+      </footer>
     </div>
   );
-}
-
-{
-  /* <div className="flex gap-4 items-center flex-col sm:flex-row"></div> */
 }
