@@ -1,83 +1,83 @@
-const clientId = "cfc08eb1e5344c4d9d1d938f569db602";
-const params = new URLSearchParams(window.location.search);
-const code = params.get("code");
+// Utility functions for Spotify Web API interactions
+// Uses NextAuth.js session for authentication
 
-console.log("Code in URL:", code); // Debugging
-
-if (!code) {
-  console.log("No code found, redirecting to Spotify...");
-  redirectToAuthCodeFlow(clientId);
-} else {
-  console.log("Code found, fetching access token...");
-  const accessToken = await getAccessToken(clientId, code);
-  const profile = await fetchProfile(accessToken);
-  populateUI(profile);
-}
-
-export async function redirectToAuthCodeFlow(clientId: string) {
-  const verifier = generateCodeVerifier(128);
-  const challenge = await generateCodeChallenge(verifier);
-
-  localStorage.setItem("verifier", verifier);
-
-  const params = new URLSearchParams();
-  params.append("client_id", clientId);
-  params.append("response_type", "code");
-  params.append("redirect_uri", process.env.SPOTIFY_REDIRECT_URI!);
-  params.append("scope", "user-read-private user-read-email");
-  params.append("code_challenge_method", "S256");
-  params.append("code_challenge", challenge);
-
-  document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
-}
-
-function generateCodeVerifier(length: number) {
-  let text = "";
-  const possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (let i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
-async function generateCodeChallenge(codeVerifier: string) {
-  const data = new TextEncoder().encode(codeVerifier);
-  const digest = await window.crypto.subtle.digest("SHA-256", data);
-  return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
-export async function getAccessToken(
-  clientId: string,
-  code: string
-): Promise<string> {
-  const verifier = localStorage.getItem("verifier");
-
-  const params = new URLSearchParams();
-  params.append("client_id", clientId);
-  params.append("grant_type", "authorization_code");
-  params.append("code", code);
-  params.append("redirect_uri", process.env.SPOTIFY_REDIRECT_URI!);
-  params.append("code_verifier", verifier!);
-
-  const result = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: params,
+/**
+ * Fetch user's Spotify profile using the access token from NextAuth session
+ */
+export async function fetchSpotifyProfile(accessToken: string) {
+  const response = await fetch("https://api.spotify.com/v1/me", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   });
 
-  const { access_token } = await result.json();
-  return access_token;
+  if (!response.ok) {
+    throw new Error(`Failed to fetch profile: ${response.status}`);
+  }
+
+  return response.json();
 }
 
-async function fetchProfile(token: string): Promise<any> {
-  // TODO: Call Web API
+/**
+ * Fetch user's playlists from Spotify
+ */
+export async function fetchUserPlaylists(accessToken: string) {
+  const response = await fetch("https://api.spotify.com/v1/me/playlists", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch playlists: ${response.status}`);
+  }
+
+  return response.json();
 }
 
-function populateUI(profile: any) {
-  // TODO: Update UI with profile data
+/**
+ * Fetch tracks from a specific playlist (handles pagination to get ALL tracks)
+ */
+export async function fetchPlaylistTracks(
+  accessToken: string,
+  playlistId: string
+) {
+  const allTracks: any[] = [];
+  let offset = 0;
+  const limit = 50; // Spotify's recommended batch size
+  let hasMore = true;
+
+  while (hasMore) {
+    const response = await fetch(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch playlist tracks: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Add tracks from this batch
+    allTracks.push(...data.items);
+
+    // Check if there are more tracks
+    hasMore = data.next !== null;
+    offset += limit;
+
+    console.log(`Fetched ${allTracks.length} tracks so far...`);
+  }
+
+  console.log(`Total tracks fetched: ${allTracks.length}`);
+
+  // Return in the same format as the original API response
+  return {
+    items: allTracks,
+    total: allTracks.length,
+  };
 }
