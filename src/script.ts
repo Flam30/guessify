@@ -1,6 +1,12 @@
 // Utility functions for Spotify Web API interactions
 // Uses NextAuth.js session for authentication
-
+interface Track {
+  track: {
+    name: string;
+    artists: Array<{ name: string }>;
+    id: string;
+  };
+}
 /**
  * Fetch user's Spotify profile using the access token from NextAuth session
  */
@@ -42,7 +48,7 @@ export async function fetchPlaylistTracks(
   accessToken: string,
   playlistId: string
 ) {
-  const allTracks: any[] = [];
+  const allTracks: Track[] = [];
   let offset = 0;
   const limit = 50; // Spotify's recommended batch size
   let hasMore = true;

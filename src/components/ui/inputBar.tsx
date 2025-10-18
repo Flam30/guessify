@@ -15,6 +15,19 @@ interface Track {
   };
 }
 
+interface SpotifySession {
+  token?: {
+    access_token: string;
+    refresh_token?: string;
+    expires_at?: number;
+  };
+  user?: {
+    id: string;
+    name?: string;
+    email?: string;
+  };
+}
+
 export default function Component() {
   const id = useId();
   const { data: session } = useSession();
@@ -30,7 +43,7 @@ export default function Component() {
   };
 
   const handleGetPlaylist = async () => {
-    const accessToken = (session as any)?.token?.access_token;
+    const accessToken = (session as SpotifySession)?.token?.access_token;
     if (!accessToken) {
       setError("Please sign in first");
       return;
