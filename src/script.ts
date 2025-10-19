@@ -72,7 +72,7 @@ export async function fetchPlaylistTracks(
     // Add tracks from this batch
     allTracks.push(...data.items);
 
-    // Check if there are more tracks
+    // Check if there are more tracks, API provides 'next' URL or null if no more tracks
     hasMore = data.next !== null;
     offset += limit;
 
