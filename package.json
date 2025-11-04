@@ -9,9 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "brfs": "^2.0.2",
+    "browserify": "^17.0.1",
     "clsx": "^2.1.1",
     "next": "15.5.3",
     "next-auth": "^4.24.11",
+    "pdfkit": "^0.17.2",
     "postcss": "^8.5.6",
     "radix-ui": "^1.4.3",
     "react": "19.1.0",
