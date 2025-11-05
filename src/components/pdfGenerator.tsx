@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
 
-export default function PDFPage() {
+export default function Component() {
   const [pdfUrl, setPdfUrl] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -113,10 +113,8 @@ export default function PDFPage() {
   };
 
   return (
-    <div className="min-h-screen p-8 bg-background text-foreground">
+    <div className="min-h-screen w-full p-8 bg-background text-foreground">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">PDF Generator Test</h1>
-        
         <div className="mb-6 space-x-4">
           <button
             onClick={generatePDF}
