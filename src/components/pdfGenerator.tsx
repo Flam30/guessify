@@ -63,6 +63,7 @@ export default function Component() {
 
       // Add your table (same as original)
       doc.table({
+        columnStyles: ["*", "*", "*", "*"],
         rowStyles: { border: false },
         data: [
           ["Header 1", "Header 2", "Header 3", "Header 4"],
