@@ -161,3 +161,75 @@ export default function Component() {
     </div>
   );
 }
+
+/**
+ // src/utils/pdfQrGenerator.ts
+import PDFDocument from 'pdfkit';
+import blobStream from 'blob-stream';
+import { makeTrackQr, qrcodeToSvg, svgToPngDataUrl } from './qrcode';
+
+// Shape/layout constants - tweak as needed
+const PAGE_WIDTH = 595.28; // A4 pt
+const PAGE_HEIGHT = 841.89; // A4 pt
+const MARGIN = 36; // points
+const COLUMNS = 4;
+const ROWS = 5;
+const GAP_X = 12; // horizontal gap between QR boxes
+const GAP_Y = 12;
+const CELL_WIDTH = (PAGE_WIDTH - MARGIN * 2 - GAP_X * (COLUMNS - 1)) / COLUMNS;
+const CELL_HEIGHT = (PAGE_HEIGHT - MARGIN * 2 - GAP_Y * (ROWS - 1)) / ROWS;
+// We'll give some space for label under QR; compute QR square size in points
+const LABEL_HEIGHT = 24;
+const QR_BOX_SIZE = Math.min(CELL_WIDTH, CELL_HEIGHT - LABEL_HEIGHT);
+
+export async function generateQrPdfForTracks(tracks: Array<{ id: string, title?: string, artists?: string[] }>): Promise<Blob> {
+  if (typeof window === 'undefined') throw new Error('PDF generation must run in the browser');
+
+  // Create PDFDocument (use client bundle: pdfkit-browser-entry or pdfkit in node_modules)
+  const doc = new PDFDocument({ size: [PAGE_WIDTH, PAGE_HEIGHT], margin: 0 });
+  const stream = doc.pipe(blobStream());
+
+  // Helper: when a page is full, call doc.addPage()
+  let col = 0, row = 0;
+
+  async function putTrack(track: { id: string, title?: string, artists?: string[] }) {
+    const x = MARGIN + col * (QR_BOX_SIZE + (CELL_WIDTH - QR_BOX_SIZE) + GAP_X);
+    const y = MARGIN + row * (QR_BOX_SIZE + LABEL_HEIGHT + GAP_Y);
+
+    // build qrcode and convert to PNG data URL sized to QR_BOX_SIZE in pixels.
+    // We'll pick px-per-pt scale ~ 2 to ensure crispness: px = QR_BOX_SIZE * scale
+    const scalePx = Math.ceil((QR_BOX_SIZE) * 2);
+    const qr = makeTrackQr(track.id);
+    const svg = qrcodeToSvg(qr, 4);
+    const pngDataUrl = await svgToPngDataUrl(svg, scalePx);
+
+    // Draw image (pdfkit accepts data URLs)
+    // Convert px size to points: we'll draw at QR_BOX_SIZE points
+    doc.image(pngDataUrl, x, y, { width: QR_BOX_SIZE, height: QR_BOX_SIZE });
+
+    // Draw label centered under QR
+    const labelY = y + QR_BOX_SIZE + 4;
+    const labelText = (track.title ?? track.id) + (track.artists ? ` — ${track.artists.join(', ')}` : '');
+    doc.fontSize(10).text(labelText, x, labelY, { width: QR_BOX_SIZE, align: 'center', continued: false });
+
+    // Advance grid
+    col++;
+    if (col >= COLUMNS) { col = 0; row++; }
+    if (row >= ROWS) { row = 0; doc.addPage(); }
+  }
+
+  // Loop tracks
+  for (const t of tracks) {
+    await putTrack(t);
+  }
+
+  doc.end();
+
+  return await new Promise<Blob>((resolve) => {
+    stream.on('finish', () => {
+      const blob = stream.toBlob('application/pdf');
+      resolve(blob);
+    });
+  });
+}
+*/
