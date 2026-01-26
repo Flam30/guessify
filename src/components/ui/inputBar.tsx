@@ -5,8 +5,8 @@ import { useSession } from "next-auth/react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { fetchPlaylistTracks } from "../../script";
-import { useTracks } from "../../contexts/TracksContext";
+import { fetchPlaylistTracks } from "@/lib/spotify";
+import { useTracks } from "@/contexts/TracksContext";
 
 interface Track {
   track: {
