@@ -1,5 +1,6 @@
 import InputBar from "../components/ui/inputBar";
 import AuthButton from "../components/AuthButton";
+import PdfGenerator from "../components/pdfGenerator";
 
 export default function Home() {
   return (
@@ -11,6 +12,9 @@ export default function Home() {
         <AuthButton />
         <div className="w-[680px]">
           <InputBar />
+        </div>
+        <div className="w-full">
+          <PdfGenerator />
         </div>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">

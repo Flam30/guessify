@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchPlaylistTracks } from "../../script";
+import { useTracks } from "../../contexts/TracksContext";
 
 interface Track {
   track: {
@@ -31,8 +32,8 @@ interface SpotifySession {
 export default function Component() {
   const id = useId();
   const { data: session } = useSession();
+  const { tracks, setTracks } = useTracks();
   const [playlistUrl, setPlaylistUrl] = useState("");
-  const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 

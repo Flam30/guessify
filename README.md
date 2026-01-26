@@ -15,3 +15,5 @@ bun dev
 ```
 In a different terminal, I run ```npx local-ssl-proxy --source 3010 --target 3000 --cert localhost.pem --key localhost-key.pem``` (Requires locally generated SSL certificates, I used ```mkcert```)
 
+If you make changes to pdf logic:
+npm run build:pdfkit
