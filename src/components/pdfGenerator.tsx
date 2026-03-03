@@ -92,7 +92,7 @@ export default function Component() {
   };
 
   return (
-    <div className="min-h-screen w-full p-8 bg-background text-foreground">
+    <div className="min-h-screen w-full bg-background text-foreground">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6 space-x-4">
           <button
